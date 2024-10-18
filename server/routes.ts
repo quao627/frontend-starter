@@ -2,8 +2,9 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Authing, Friending, Posting, Sessioning } from "./app";
-import { PostOptions } from "./concepts/posting";
+import { Authing, Chatting, Eventing, Friending, Place, Posting, Profiling, Sessioning } from "./app";
+import { EventDoc } from "./concepts/eventing";
+import { PostOptions, PostState } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import Responses from "./responses";
 
@@ -70,6 +71,7 @@ class Routes {
     return { msg: "Logged out!" };
   }
 
+  // --- Post
   @Router.get("/posts")
   @Router.validate(z.object({ author: z.string().optional() }))
   async getPosts(author?: string) {
@@ -83,29 +85,59 @@ class Routes {
     return Responses.posts(posts);
   }
 
+  /**
+   * Create a new post.
+   */
   @Router.post("/posts")
-  async createPost(session: SessionDoc, content: string, options?: PostOptions) {
+  async createPost(session: SessionDoc, content: string, state: string, options?: PostOptions) {
     const user = Sessioning.getUser(session);
-    const created = await Posting.create(user, content, options);
+    const created = await Posting.create(user, content, state as PostState, options);
     return { msg: created.msg, post: await Responses.post(created.post) };
   }
 
+  /**
+   * Update an existing post (only the author can update).
+   */
   @Router.patch("/posts/:id")
-  async updatePost(session: SessionDoc, id: string, content?: string, options?: PostOptions) {
+  async updatePost(session: SessionDoc, id: string, content?: string, state?: string, options?: PostOptions) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Posting.assertAuthorIsUser(oid, user);
-    return await Posting.update(oid, content, options);
+    return await Posting.update(oid, content, state as PostState, options);
   }
 
+  /**
+   * Delete a post (only the author can delete).
+   */
   @Router.delete("/posts/:id")
   async deletePost(session: SessionDoc, id: string) {
     const user = Sessioning.getUser(session);
     const oid = new ObjectId(id);
     await Posting.assertAuthorIsUser(oid, user);
-    return Posting.delete(oid);
+    return await Posting.delete(oid);
   }
 
+  /**
+   * React to a post (like a post).
+   */
+  @Router.post("/posts/:id/react")
+  async reactToPost(session: SessionDoc, id: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(id);
+    return await Posting.reactToPost(user, oid);
+  }
+
+  /**
+   * Get the number of likes for a post.
+   */
+  @Router.get("/posts/:id/likes")
+  async getLikesCount(id: string) {
+    const oid = new ObjectId(id);
+    const likesCount = await Posting.getNumberOfLikes(oid);
+    return { likes: likesCount };
+  }
+
+  // --- Friending Routes ---
   @Router.get("/friends")
   async getFriends(session: SessionDoc) {
     const user = Sessioning.getUser(session);
@@ -151,6 +183,133 @@ class Routes {
     const user = Sessioning.getUser(session);
     const fromOid = (await Authing.getUserByUsername(from))._id;
     return await Friending.rejectRequest(fromOid, user);
+  }
+
+  // --- Event Routes ---
+  @Router.post("/events")
+  async createEvent(session: SessionDoc, description: string, time: string, location: string) {
+    //  Sessioning.assertAdmin(session); // only admins can create events
+    const eventTime = new Date(time);
+    const eventID = await Eventing.createEvent(description, eventTime, location);
+    return { msg: "Event created successfully", eventID: eventID };
+  }
+
+  @Router.get("/events")
+  async getEvents() {
+    return await Eventing.viewEvents();
+  }
+
+  @Router.get("/events/:eventId")
+  @Router.validate(z.object({ eventId: z.string().min(1) }))
+  async getEventDetails(eventId: string) {
+    const oid = new ObjectId(eventId);
+    return await Eventing.viewEventDetails(oid);
+  }
+
+  @Router.patch("/events/:eventId")
+  @Router.validate(z.object({ eventId: z.string().min(1) }))
+  async updateEvent(eventId: string, details: Partial<EventDoc>) {
+    //  Sessioning.assertAdmin(session);
+    const oid = new ObjectId(eventId);
+    return await Eventing.updateEvent(oid, details);
+  }
+
+  @Router.delete("/events/:eventId")
+  @Router.validate(z.object({ eventId: z.string().min(1) }))
+  async deleteEvent(eventId: string) {
+    //  Sessioning.assertAdmin(session);
+    const oid = new ObjectId(eventId);
+    return await Eventing.deleteEvent(oid);
+  }
+
+  @Router.post("/events/:eventId/register")
+  async registerForEvent(session: SessionDoc, eventId: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(eventId);
+    return await Eventing.registerUserForEvent(user, oid);
+  }
+
+  // --- Profile Routes ---
+  @Router.post("/profiles")
+  async createProfile(session: SessionDoc, name: string, expertise: string, interests: string, pastExperience: string, gender: string) {
+    const user = Sessioning.getUser(session);
+    return await Profiling.createProfile(user, name, expertise, interests, pastExperience, gender);
+  }
+
+  @Router.patch("/profiles")
+  async editProfile(session: SessionDoc, name: string, expertise: string, interests: string, pastExperience: string, gender: string) {
+    const user = Sessioning.getUser(session);
+    return await Profiling.editProfile(user, name, expertise, interests, pastExperience, gender);
+  }
+
+  // PATCH: Verify Profile
+  @Router.patch("/profiles/:userId/verify")
+  @Router.validate(z.object({ userId: z.string().min(1) }))
+  async verifyProfile(userId: string) {
+    const oid = new ObjectId(userId);
+    return await Profiling.verifyProfile(oid);
+  }
+
+  // GET: Get Profile by userId
+  @Router.get("/profiles/:userId")
+  @Router.validate(z.object({ userId: z.string().min(1) }))
+  async getProfile(userId: string) {
+    const oid = new ObjectId(userId);
+    return await Profiling.getProfile(oid);
+  }
+
+  // --- Chat Routes ---
+  @Router.post("/chats/private")
+  async startPrivateChat(session: SessionDoc, targetUserId: string) {
+    const user = Sessioning.getUser(session);
+    const targetOid = new ObjectId(targetUserId);
+    return await Chatting.startPrivateChat(user, targetOid);
+  }
+
+  @Router.post("/chats/:chatId/messages")
+  async sendMessage(session: SessionDoc, chatId: string, text: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(chatId);
+    return await Chatting.sendMessage(oid, user, text);
+  }
+
+  @Router.get("/chats/:chatId")
+  @Router.validate(z.object({ chatId: z.string().min(1) }))
+  async getChat(chatId: string) {
+    const oid = new ObjectId(chatId);
+    return await Chatting.getChat(oid);
+  }
+
+  // New route to get all chat IDs for a given user
+  @Router.get("/users/:userId/chats")
+  @Router.validate(z.object({ userId: z.string().min(1) }))
+  async getChatIdsForUser(userId: string) {
+    const oid = new ObjectId(userId);
+    return await Chatting.getChatIdsForUser(oid);
+  }
+
+  // Route to browse nearby locations
+  @Router.get("/locations")
+  async browseLocations() {
+    return await Place.browseNearbyLocations();
+  }
+
+  // Route to propose a meeting
+  @Router.post("/meetings/propose")
+  async proposeMeeting(session: SessionDoc, recipient: string, location: string) {
+    const user = Sessioning.getUser(session);
+    const recipientOid = new ObjectId(recipient);
+    const meeting = await Place.proposeMeeting(user, recipientOid, location);
+    return { msg: "Meeting proposed successfully", meeting };
+  }
+
+  // Route to accept a meeting
+  @Router.patch("/meetings/:meetingId/accept")
+  async acceptMeeting(session: SessionDoc, meetingId: string) {
+    const user = Sessioning.getUser(session);
+    const meetingOid = new ObjectId(meetingId);
+    await Place.acceptMeeting(user, meetingOid);
+    return { msg: "Meeting accepted successfully" };
   }
 }
 
