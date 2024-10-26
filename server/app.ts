@@ -1,11 +1,11 @@
 import AuthenticatingConcept from "./concepts/authenticating";
-import FriendingConcept from "./concepts/friending";
-import PostingConcept from "./concepts/posting";
-import SessioningConcept from "./concepts/sessioning";
-import EventConcept from "./concepts/eventing";
-import ProfileConcept from "./concepts/profile";
 import ChatConcept from "./concepts/chat";
+import EventConcept from "./concepts/eventing";
+import FriendingConcept from "./concepts/friending";
 import PlaceConcept from "./concepts/place";
+import PostingConcept from "./concepts/posting";
+import ProfileConcept from "./concepts/profile";
+import SessioningConcept from "./concepts/sessioning";
 
 // The app is a composition of concepts instantiated here
 // and synchronized together in `routes.ts`.

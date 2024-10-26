@@ -187,10 +187,10 @@ class Routes {
 
   // --- Event Routes ---
   @Router.post("/events")
-  async createEvent(session: SessionDoc, description: string, time: string, location: string) {
+  async createEvent(session: SessionDoc, name: string, description: string, time: string, location: string) {
     //  Sessioning.assertAdmin(session); // only admins can create events
     const eventTime = new Date(time);
-    const eventID = await Eventing.createEvent(description, eventTime, location);
+    const eventID = await Eventing.createEvent(name, description, eventTime, location);
     return { msg: "Event created successfully", eventID: eventID };
   }
 

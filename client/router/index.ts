@@ -2,9 +2,14 @@ import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
+import ChatsListView from "../views/ChatListView.vue";
+import ChatView from "../views/ChatView.vue";
+import EventView from "../views/EventView.vue";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
+import PostView from "../views/PostView.vue";
+import ProfileView from "../views/ProfileView.vue";
 import SettingView from "../views/SettingView.vue";
 
 const router = createRouter({
@@ -21,6 +26,55 @@ const router = createRouter({
       component: SettingView,
       meta: { requiresAuth: true },
     },
+    {
+      path: "/post",
+      name: "Post",
+      component: PostView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/create-post",
+      component: () => import("@/components/Posts/CreatePostForm.vue"),
+    },
+    {
+      path: "/event",
+      name: "Event",
+      component: EventView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/events/:id",
+      component: () => import("@/components/Event/EventDetail.vue"),
+    },
+    {
+      path: "/chat",
+      name: "Chat",
+      component: ChatsListView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/chat/:id",
+      component: ChatView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/profile",
+      name: "Profile",
+      component: ProfileView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/profile/:id",
+      component: ProfileView,
+    },
+    // {
+    //   path: "/profile/edit",
+    //   component: () => import("@/components/Profile/EditProfile.vue"), // This is the edit profile page
+    // },
+    // {
+    //   path: "/chat/:id",
+    //   component: () => import("@/components/Chat/ChatView.vue"), // Chat with user
+    // },
     {
       path: "/login",
       name: "Login",

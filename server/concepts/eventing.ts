@@ -5,6 +5,7 @@ import DocCollection, { BaseDoc } from "../framework/doc";
  * Event information schema
  */
 export interface EventDoc extends BaseDoc {
+  name: string;
   description: string;
   time: Date;
   location: string;
@@ -24,8 +25,8 @@ export default class EventConcept {
     this.events = new DocCollection<EventDoc>(collectionName);
   }
 
-  async createEvent(description: string, time: Date, location: string) {
-    return await this.events.createOne({ description, time, location, registeredUsers: [] });
+  async createEvent(name: string, description: string, time: Date, location: string) {
+    return await this.events.createOne({ name, description, time, location, registeredUsers: [] });
   }
 
   async registerUserForEvent(userId: ObjectId, eventId: ObjectId) {
@@ -73,7 +74,10 @@ export class EventNotFoundError extends Error {
 }
 
 export class UserAlreadyRegisteredError extends Error {
-  constructor(public readonly userId: ObjectId, public readonly eventId: ObjectId) {
+  constructor(
+    public readonly userId: ObjectId,
+    public readonly eventId: ObjectId,
+  ) {
     super(`User ${userId} is already registered for event ${eventId}!`);
   }
 }
