@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import ChatInput from "@/components/Chat/ChatInput.vue";
-import MessageComponent from "@/components/Chat/MessageComponent.vue";
-import PlacePicker from "@/components/Chat/PlacePicker.vue";
 import { nextTick, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import ChatInput from "../components/Chat/ChatInput.vue";
+import MessageComponent from "../components/Chat/MessageComponent.vue";
+import PlacePicker from "../components/Chat/PlacePicker.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -16,7 +16,7 @@ const messages = ref([
 ]);
 
 const showPlacePicker = ref(false);
-const chatMessagesContainer = ref(null);
+const chatMessagesContainer = ref<HTMLElement | null>(null);
 
 // Function to go back to the previous page
 const goBack = () => {
@@ -24,13 +24,13 @@ const goBack = () => {
 };
 
 // Function to send a new message
-const sendMessage = (message) => {
+const sendMessage = (message: { id: number; sender: string; content: string; type: string; placeName?: string }) => {
   messages.value.push(message);
   scrollToBottom();
 };
 
 // Function to send a place
-const sendPlace = (place) => {
+const sendPlace = (place: string) => {
   messages.value.push({ id: Date.now(), sender: "User", content: place, type: "place", placeName: place });
   showPlacePicker.value = false;
   scrollToBottom();
@@ -38,11 +38,15 @@ const sendPlace = (place) => {
 
 // Scroll to the latest message
 const scrollToBottom = () => {
-  nextTick(() => {
-    if (chatMessagesContainer.value) {
-      chatMessagesContainer.value.scrollTop = chatMessagesContainer.value.scrollHeight;
-    }
-  });
+  nextTick()
+    .then(() => {
+      if (chatMessagesContainer.value) {
+        chatMessagesContainer.value.scrollTop = chatMessagesContainer.value.scrollHeight;
+      }
+    })
+    .catch((error) => {
+      console.error("Failed to scroll to bottom:", error);
+    });
 };
 
 // Automatically scroll to the bottom on component mount

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import RecentPosts from "@/components/Posts/RecentPosts.vue";
-import ProfileInfo from "@/components/Profile/ProfileInfo.vue";
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import RecentPosts from "../components/Posts/RecentPosts.vue";
+import ProfileInfo from "../components/Profile/ProfileInfo.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -21,7 +21,7 @@ const currentUser = ref({
 
 // Determine if this is the current user's profile or another user
 const profile = ref({
-  id: route.params.id,
+  id: Number(route.params.id),
   name: route.params.id === "1" ? "Ao" : "Lee",
   gender: route.params.id === "1" ? "Male" : "Female",
   posts: 6,

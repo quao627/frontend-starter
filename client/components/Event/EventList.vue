@@ -21,8 +21,12 @@ const events = ref([
 
 const router = useRouter();
 
-const goToEvent = (eventId) => {
-  router.push(`/events/${eventId}`);
+const goToEvent = async (eventId: number) => {
+  try {
+    await router.push(`/events/${eventId}`);
+  } catch (error) {
+    console.error("Failed to navigate to event:", error);
+  }
 };
 </script>
 

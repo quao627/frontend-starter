@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import CreatePostButton from "@/components/Posts/CreatePostButton.vue";
-import PostListComponent from "@/components/Posts/PostListComponent.vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
+import CreatePostButton from "../components/Posts/CreatePostButton.vue";
+import PostListComponent from "../components/Posts/PostListComponent.vue";
 
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 </script>

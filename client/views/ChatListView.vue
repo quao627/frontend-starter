@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import ChatListItem from "@/components/Chat/ChatListItem.vue";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import ChatListItem from "../components/Chat/ChatListItem.vue";
 
 const router = useRouter();
 
@@ -11,8 +11,10 @@ const chats = ref([
   { id: 3, recipient: "Charlie", lastMessage: "Great, see you then!", lastMessageTime: "12:00 PM" },
 ]);
 
-const openChat = (chatId) => {
-  router.push(`/chat/${chatId}`);
+const openChat = (chatId: number) => {
+  router.push(`/chat/${chatId}`).catch((error) => {
+    console.error("Failed to navigate to chat:", error);
+  });
 };
 </script>
 

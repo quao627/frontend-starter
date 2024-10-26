@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-list-item" @click="$emit('openChat', chat.id)">
+  <div v-if="chat" class="chat-list-item" @click="$emit('openChat', chat.id)">
     <div class="avatar">{{ recipientInitial }}</div>
     <div class="chat-details">
       <h3>{{ chat.recipient }}</h3>
@@ -16,7 +16,7 @@ const props = defineProps({
   chat: Object,
 });
 
-const recipientInitial = computed(() => props.chat.recipient.charAt(0).toUpperCase());
+const recipientInitial = computed(() => props.chat?.recipient?.charAt(0).toUpperCase() ?? "");
 </script>
 
 <style scoped>

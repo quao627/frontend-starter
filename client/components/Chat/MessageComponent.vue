@@ -2,8 +2,8 @@
   <div :class="['message', isSender ? 'sender' : 'receiver']">
     <div class="avatar">{{ avatar }}</div>
     <div class="message-content">
-      <p v-if="message.type === 'text'">{{ message.content }}</p>
-      <div v-else class="place-card">📍 {{ message.placeName }}</div>
+      <p v-if="message && message.type === 'text'">{{ message.content }}</p>
+      <div v-else-if="message" class="place-card">📍 {{ message.placeName }}</div>
     </div>
   </div>
 </template>
@@ -15,8 +15,8 @@ const props = defineProps({
   message: Object,
 });
 
-const isSender = computed(() => props.message.sender === "User");
-const avatar = computed(() => props.message.sender.charAt(0).toUpperCase());
+const isSender = computed(() => props.message && props.message.sender === "User");
+const avatar = computed(() => props.message?.sender?.charAt(0).toUpperCase() || "");
 </script>
 
 <style scoped>

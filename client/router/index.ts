@@ -2,15 +2,15 @@ import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
-import ChatsListView from "../views/ChatListView.vue";
-import ChatView from "../views/ChatView.vue";
-import EventView from "../views/EventView.vue";
-import HomeView from "../views/HomeView.vue";
-import LoginView from "../views/LoginView.vue";
-import NotFoundView from "../views/NotFoundView.vue";
-import PostView from "../views/PostView.vue";
-import ProfileView from "../views/ProfileView.vue";
-import SettingView from "../views/SettingView.vue";
+import ChatsListView from "@/views/ChatListView.vue";
+import ChatView from "@/views/ChatView.vue";
+import EventView from "@/views/EventView.vue";
+import HomeView from "@/views/HomeView.vue";
+import LoginView from "@/views/LoginView.vue";
+import NotFoundView from "@/views/NotFoundView.vue";
+import PostView from "@/views/PostView.vue";
+import ProfileView from "@/views/ProfileView.vue";
+import SettingView from "@/views/SettingView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
