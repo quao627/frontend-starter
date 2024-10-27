@@ -17,6 +17,7 @@
     "test": "npm run build && mocha -r source-map-support/register dist-server/test"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.4",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/express-session": "^1.17.7",
@@ -46,6 +47,7 @@
     "vue-tsc": "^2.1.6"
   },
   "dependencies": {
+    "axios": "^1.7.7",
     "connect-mongo": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

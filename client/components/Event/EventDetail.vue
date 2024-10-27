@@ -13,7 +13,7 @@
     <div class="attendees">
       <h2>Who is going</h2>
       <ul>
-        <li v-for="attendee in event.attendees" :key="attendee.id" @click="goToProfile(attendee.id)" class="attendee-item">
+        <li v-for="attendee in event.attendees" :key="attendee.id" @click="goToProfile(attendee.name)" class="attendee-item">
           {{ attendee.name }}
         </li>
       </ul>
@@ -51,9 +51,9 @@ const goBack = () => {
 };
 
 // Function to navigate to attendee's profile
-const goToProfile = async (attendeeId: number) => {
+const goToProfile = async (attendeeName: string) => {
   try {
-    await router.push(`/profile/${attendeeId}`);
+    await router.push(`/profile/${attendeeName}`);
   } catch (error) {
     console.error("Failed to navigate to profile:", error);
   }

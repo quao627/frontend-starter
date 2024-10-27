@@ -1,46 +1,82 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
+import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import RecentPosts from "../components/Posts/RecentPosts.vue";
 import ProfileInfo from "../components/Profile/ProfileInfo.vue";
 
+const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 const route = useRoute();
 const router = useRouter();
-
-// Mock of the logged-in user
-const currentUser = ref({
-  id: 1,
-  name: "Ao",
-  gender: "Male",
-  posts: 6,
-  friends: 123,
-  expertise: "Logistics Management",
-  interests: "Supply Chain, Data Analytics",
-  pastExperience: "5 years in logistics and supply chain management",
-});
-
-// Determine if this is the current user's profile or another user
 const profile = ref({
-  id: Number(route.params.id),
-  name: route.params.id === "1" ? "Ao" : "Lee",
-  gender: route.params.id === "1" ? "Male" : "Female",
-  posts: 6,
-  friends: 123,
-  expertise: "Logistics and Supply Chain",
-  interests: "Data Analysis, Strategy Planning",
-  pastExperience: "Worked at XYZ Corporation for 3 years",
+  id: 0,
+  verified: true,
+  name: "NA",
+  gender: "NA",
+  expertise: "NA",
+  interests: "NA",
+  pastExperience: "NA",
+  posts: 0,
+  friends: 0,
+});
+const IsVerified = computed(() => {
+  return profile.value.verified;
 });
 
-const isCurrentUserProfile = computed(() => currentUser.value.id === profile.value.id);
+const isCurrentUserProfile = computed(() => {
+  return route.params.name == undefined || route.params.name === currentUsername.value;
+});
 
-const goToEdit = () => {
-  //   router.push("/profile/edit");
-  console.log("Edit profile clicked");
+// Updated fetchProfile function to update profile directly
+const fetchProfile = async (name: string) => {
+  try {
+    const userName = name ? name : currentUsername.value;
+    const response = await fetch(`http://localhost:3000/api/users/${userName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) throw new Error("Failed to fetch user");
+    const data = await response.json();
+    const userID = Number(data._id);
+
+    const response2 = await fetch(`http://localhost:3000/api/profiles/${userID}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response2.ok) throw new Error("Failed to fetch profile");
+    const data2 = await response2.json();
+    Object.assign(profile.value, data2.profileInfo); // Update profile directly
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+  }
 };
 
-const goToChat = () => {
-  //   router.push(`/chat/${profile.value.id}`);
-  console.log("Chat with user clicked");
+// Call fetchProfile in onMounted to ensure it runs after the component loads
+onMounted(async () => {
+  await fetchProfile(Array.isArray(route.params.name) ? route.params.name[0] : route.params.name);
+});
+
+const goToEdit = async () => {
+  try {
+    await router.push(`/profile/edit`);
+    console.log("Edit profile clicked");
+  } catch (error) {
+    console.error("Failed to navigate to edit profile:", error);
+  }
+};
+
+const goToChat = async () => {
+  try {
+    await router.push(`/chat/${profile.value.id}`);
+    console.log("Chat with user clicked");
+  } catch (error) {
+    console.error("Failed to navigate to chat:", error);
+  }
 };
 </script>
 
@@ -49,7 +85,7 @@ const goToChat = () => {
     <!-- Profile Header -->
     <div class="profile-header">
       <div class="profile-info">
-        <h2>{{ profile.name }} <span class="verified-badge" v-if="isCurrentUserProfile">✔️</span></h2>
+        <h2>{{ profile.name }} <span class="verified-badge" v-if="IsVerified">✔️</span></h2>
         <span class="gender">{{ profile.gender }}</span>
         <div class="stats">
           <div class="stat-item">

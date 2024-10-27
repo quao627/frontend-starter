@@ -15,5 +15,5 @@
     "baseUrl": "./",
     "outDir": "../dist-server/",
   },
-  "include": ["./**/*.ts", "../public/*.ts", "../test/*.ts", "../api/index.ts"],
+  "include": ["./**/*.ts", "public/*.ts", "../test/*.ts", "../api/index.ts"],
 }

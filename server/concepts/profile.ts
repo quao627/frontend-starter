@@ -54,7 +54,8 @@ export default class ProfileConcept {
   async getProfile(author: ObjectId) {
     const profile = await this.profiles.readOne({ author: author });
     if (!profile) {
-      throw new ProfileNotFoundError(author);
+      await this.createProfile(author, "", "", "", "", "");
+      return await this.profiles.readOne({ author: author });
     }
     return profile;
   }

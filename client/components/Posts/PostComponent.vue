@@ -3,7 +3,7 @@
     <!-- Post Header -->
     <div class="post-header">
       <div class="author-details">
-        <h2>{{ post.author }}</h2>
+        <h2 @click="goToProfile" class="author-name">{{ post.author }}</h2>
         <span class="post-state">{{ post.state === "LookingForPeople" ? "🔍 Looking for People" : "💬 General Discussion" }}</span>
       </div>
     </div>
@@ -23,13 +23,35 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
+import { defineProps } from "vue";
+import { useRouter } from "vue-router";
+
+const props = defineProps({
   post: Object,
 });
+
+const router = useRouter();
+
+const goToProfile = () => {
+  // Assuming each post has an `authorId` to identify the author's profile
+  if (props.post) {
+    router.push(`/profile/${props.post.authorId}`).catch((error) => {
+      console.error("Failed to navigate to profile:", error);
+    });
+  }
+};
 </script>
 
 <style scoped>
 /* Post card styling */
+/* click on author name to navigate to author's profile and add underline when hovered */
+.author-name {
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .post-card {
   background-color: white;
   padding: 16px;

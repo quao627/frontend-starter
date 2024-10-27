@@ -4,8 +4,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import ChatsListView from "@/views/ChatListView.vue";
 import ChatView from "@/views/ChatView.vue";
+import EditProfile from "@/views/EditProfile.vue";
 import EventView from "@/views/EventView.vue";
-import HomeView from "@/views/HomeView.vue";
 import LoginView from "@/views/LoginView.vue";
 import NotFoundView from "@/views/NotFoundView.vue";
 import PostView from "@/views/PostView.vue";
@@ -18,7 +18,7 @@ const router = createRouter({
     {
       path: "/",
       name: "Home",
-      component: HomeView,
+      component: PostView,
     },
     {
       path: "/setting",
@@ -64,8 +64,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: "/profile/:id",
+      path: "/profile/:name",
       component: ProfileView,
+    },
+    {
+      path: "/profile/edit",
+      component: EditProfile,
     },
     // {
     //   path: "/profile/edit",
